@@ -38,7 +38,7 @@ model:
   name: liif
   args:
     encoder_spec:
-      name: edsr-baseline
+      name: hcan
       args:
         no_upsampling: true
     imnet_spec:
@@ -57,4 +57,4 @@ multi_step_lr:
   gamma: 0.5
 
 epoch_val: 1
-epoch_save: 100
+epoch_save: 10
