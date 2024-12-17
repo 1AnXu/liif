@@ -29,7 +29,7 @@ def batched_predict(model, inp, coord, cell, bsize):
 
 
 def eval_psnr(loader, model, data_norm=None, eval_type=None, eval_bsize=None,
-              verbose=False):
+              verbose=False,show_process=False):
     model.eval()
 
     if data_norm is None:
@@ -56,9 +56,10 @@ def eval_psnr(loader, model, data_norm=None, eval_type=None, eval_bsize=None,
         raise NotImplementedError
 
     val_res = utils.Averager()
-
-    pbar = tqdm(loader, leave=False, desc='val')
-    for batch in pbar:
+    if show_process:
+        loader = tqdm(loader, leave=False, desc='val')
+    # pbar = tqdm(loader, leave=False, desc='val')
+    for batch in loader:
         for k, v in batch.items():
             batch[k] = v.cuda()
 
@@ -85,8 +86,7 @@ def eval_psnr(loader, model, data_norm=None, eval_type=None, eval_bsize=None,
         val_res.add(res.item(), inp.shape[0])
 
         if verbose:
-            pbar.set_description('val {:.4f}'.format(val_res.item()))
-
+            loader.set_description('val {:.4f}'.format(val_res.item()))
     return val_res.item()
 
 
@@ -95,6 +95,7 @@ if __name__ == '__main__':
     parser.add_argument('--config')
     parser.add_argument('--model')
     parser.add_argument('--gpu', default='0')
+    parser.add_argument('--show_process',type=int, default=0, help='An integer flag (0 or 1)')
     args = parser.parse_args()
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -110,10 +111,12 @@ if __name__ == '__main__':
 
     model_spec = torch.load(args.model)['model']
     model = models.make(model_spec, load_sd=True).cuda()
-
+    show_process = bool(args.show_process)
+    print('show_process:', show_process)
     res = eval_psnr(loader, model,
         data_norm=config.get('data_norm'),
         eval_type=config.get('eval_type'),
         eval_bsize=config.get('eval_bsize'),
-        verbose=True)
+        verbose=True,
+        show_process=show_process)
     print('result: {:.4f}'.format(res))

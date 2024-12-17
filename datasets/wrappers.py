@@ -103,8 +103,8 @@ class SRImplicitDownsampled(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        img = self.dataset[idx]
-        s = random.uniform(self.scale_min, self.scale_max)
+        img = self.dataset[idx] # HR image
+        s = random.uniform(self.scale_min, self.scale_max) # 从均匀分布中随机选择，比如1.5
 
         if self.inp_size is None:
             h_lr = math.floor(img.shape[-2] / s + 1e-9)
@@ -112,13 +112,13 @@ class SRImplicitDownsampled(Dataset):
             img = img[:, :round(h_lr * s), :round(w_lr * s)] # assume round int
             img_down = resize_fn(img, (h_lr, w_lr))
             crop_lr, crop_hr = img_down, img
-        else:
-            w_lr = self.inp_size
-            w_hr = round(w_lr * s)
+        else: # inp_size is not None 48
+            w_lr = self.inp_size # 48
+            w_hr = round(w_lr * s) # 72 (48*1.5)
             x0 = random.randint(0, img.shape[-2] - w_hr)
             y0 = random.randint(0, img.shape[-1] - w_hr)
             crop_hr = img[:, x0: x0 + w_hr, y0: y0 + w_hr]
-            crop_lr = resize_fn(crop_hr, w_lr)
+            crop_lr = resize_fn(crop_hr, w_lr) # 对hr进行双三次降采样，得到lr
 
         if self.augment:
             hflip = random.random() < 0.5
@@ -136,20 +136,20 @@ class SRImplicitDownsampled(Dataset):
 
             crop_lr = augment(crop_lr)
             crop_hr = augment(crop_hr)
-
+        # 得到hr的坐标和rgb数值(H,W,2),(H,W,3)
         hr_coord, hr_rgb = to_pixel_samples(crop_hr.contiguous())
-
+        # hr部分只随机取出一部分像素？(不放回取样)
         if self.sample_q is not None:
             sample_lst = np.random.choice(
                 len(hr_coord), self.sample_q, replace=False)
             hr_coord = hr_coord[sample_lst]
             hr_rgb = hr_rgb[sample_lst]
-
+        # 得到目标图像对应cell的大小。
         cell = torch.ones_like(hr_coord)
         cell[:, 0] *= 2 / crop_hr.shape[-2]
         cell[:, 1] *= 2 / crop_hr.shape[-1]
 
-        return {
+        return { # # 每次是输入图像，目标图像的坐标，目标图像的cell大小，目标图像。
             'inp': crop_lr,
             'coord': hr_coord,
             'cell': cell,
@@ -206,3 +206,4 @@ class SRImplicitUniformVaried(Dataset):
             'cell': cell,
             'gt': hr_rgb
         }
+
