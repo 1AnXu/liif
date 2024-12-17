@@ -1,0 +1,17 @@
+# demo.py生成图片
+python demo.py --input /home/work/yanxu/dog.png --model edsr-baseline-liif.pth --resolution 1200,800 --output dog.png --gpu 0
+
+# 训练edsr-baseline-liif
+python train_liif.py --config configs/train-div2k/train_edsr-baseline-liif.yaml
+
+# nohup命令
+nohup your-command-here > /dev/null 2>&1 &
+
+nohup python train_liif.py --config configs/train-div2k/train_edsr-baseline-liif.yaml --gpu 0,1,2,3 > logs/train_edsr-baseline-liif.log 2>&1 &
+
+python test.py --config configs/test/test-div2k-2.yaml --model save/_train_edsr-baseline-liif/epoch-best.pth
+
+
+复现edsr-baseline-liif的psnr结果：
+--config configs/test/test-div2k-2.yaml --model save/_train_edsr-baseline-liif/epoch-best.pth result:30.6075
+--config configs/test/test-div2k-2.yaml --model save/_train_edsr-baseline-liif/epoch-last.pth result:30.6799

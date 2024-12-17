@@ -99,7 +99,7 @@ def train(train_loader, model, optimizer):
     gt_sub = torch.FloatTensor(t['sub']).view(1, 1, -1).cuda()
     gt_div = torch.FloatTensor(t['div']).view(1, 1, -1).cuda()
 
-    for batch in tqdm(train_loader, leave=False, desc='train'):
+    for batch in train_loader:
         for k, v in batch.items():
             batch[k] = v.cuda()
 
@@ -116,7 +116,6 @@ def train(train_loader, model, optimizer):
         optimizer.step()
 
         pred = None; loss = None
-
     return train_loss.item()
 
 
@@ -203,7 +202,7 @@ def main(config_, save_path):
         log_info.append('{} {}/{}'.format(t_epoch, t_elapsed, t_all))
 
         log(', '.join(log_info))
-        writer.flush()
+    writer.close()
 
 
 if __name__ == '__main__':

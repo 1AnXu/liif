@@ -1,3 +1,6 @@
 __pycache__
 folders
 load
+save
+*.log
+*.pth

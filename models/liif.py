@@ -43,7 +43,7 @@ class LIIF(nn.Module):
                 .permute(0, 2, 1)
             return ret
 
-        if self.feat_unfold:
+        if self.feat_unfold: # 特征展开操作，将特征图的每个像素点周围的8个像素点也加入到特征中
             feat = F.unfold(feat, 3, padding=1).view(
                 feat.shape[0], feat.shape[1] * 9, feat.shape[2], feat.shape[3])
 
