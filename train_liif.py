@@ -150,12 +150,13 @@ def main(config_, save_path):
         t_epoch_start = timer.t()
         log_info = ['epoch {}/{}'.format(epoch, epoch_max)]
 
-        writer.add_scalar('lr', optimizer.param_groups[0]['lr'], epoch)
+        current_lr = optimizer.param_groups[0]['lr']
+        writer.add_scalar('lr', current_lr, epoch)
 
         train_loss = train(train_loader, model, optimizer)
         if lr_scheduler is not None:
             lr_scheduler.step()
-
+        log_info.append('lr={:.2e}'.format(current_lr))
         log_info.append('train: loss={:.4f}'.format(train_loss))
         writer.add_scalars('loss', {'train': train_loss}, epoch)
 

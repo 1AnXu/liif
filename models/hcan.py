@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from basicsr.utils.registry import ARCH_REGISTRY
 
 from .arch_util import trunc_normal_
 from .swin_hab_arch_util import HLAB,window_partition

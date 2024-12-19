@@ -71,13 +71,13 @@ class LIIF(nn.Module):
                 coord_[:, :, 1] += vy * ry + eps_shift
                 coord_.clamp_(-1 + 1e-6, 1 - 1e-6)
                 q_feat = F.grid_sample(
-                    feat, coord_.flip(-1).unsqueeze(1),
+                    feat, coord_.flip(-1).unsqueeze(1), # feat(16,576,48,48)    coord_(16,2304,2)->(16,1,2304,2)
                     mode='nearest', align_corners=False)[:, :, 0, :] \
-                    .permute(0, 2, 1)
+                    .permute(0, 2, 1) # q_feat(16,2304,576)
                 q_coord = F.grid_sample(
-                    feat_coord, coord_.flip(-1).unsqueeze(1),
+                    feat_coord, coord_.flip(-1).unsqueeze(1), # feat_coord(16,2,48,48)   coord_(16,2304,2)->(16,1,2304,2)
                     mode='nearest', align_corners=False)[:, :, 0, :] \
-                    .permute(0, 2, 1)
+                    .permute(0, 2, 1) # q_coord(16,2304,2)
                 rel_coord = coord - q_coord
                 rel_coord[:, :, 0] *= feat.shape[-2]
                 rel_coord[:, :, 1] *= feat.shape[-1]

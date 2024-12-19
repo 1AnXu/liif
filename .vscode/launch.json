@@ -12,6 +12,8 @@
             "console": "integratedTerminal",
             "args": ["--config",
                     "configs/train-div2k/train_edsr-baseline-liif.yaml",
+                    "--tag",
+                    "dubug"
             ],
         }
     ]
